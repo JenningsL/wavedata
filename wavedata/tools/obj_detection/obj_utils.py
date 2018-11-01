@@ -239,6 +239,7 @@ def get_lidar_point_cloud(img_idx, calib_dir, velo_dir,
     # Calculate the point cloud
     pts = np.vstack((x, y, z)).T
     pts = calib_utils.lidar_to_cam_frame(pts, frame_calib)
+    pts = np.concatenate((pts, np.expand_dims(i, axis=1)), axis=1)
 
     # The given image is assumed to be a 2D image
     if not im_size:
@@ -248,7 +249,7 @@ def get_lidar_point_cloud(img_idx, calib_dir, velo_dir,
     else:
         # Only keep points in front of camera (positive z)
         pts = pts[pts[:, 2] > 0]
-        point_cloud = pts.T
+        point_cloud = pts[:, 0:3].T
 
         # Project to image frame
         point_in_im = calib_utils.project_to_image(point_cloud, p=frame_calib.p2).T
